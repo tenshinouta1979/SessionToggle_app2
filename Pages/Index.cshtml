@@ -1,0 +1,98 @@
+﻿@page
+@model SessionToggleApp.Pages.IndexModel
+@{
+    ViewData["Title"] = "App2 Simulation";
+    Layout = "_Layout"; // Use the shared layout
+}
+
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-sans antialiased">
+    <div class="bg-white rounded-xl shadow-2xl p-8 md:p-12 w-full max-w-md text-center border-t-8 border-purple-500">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-6 tracking-tight">
+            App2 Simulation (GIS App)
+        </h1>
+        <p class="text-lg text-gray-700 mb-8 leading-relaxed">
+            This simulates the GIS application operating *without* a "session-like" state.
+            Every "action" here requires re-validation with App1 via an actual network call.
+        </p>
+
+        @if (!string.IsNullOrEmpty(Model.ReceivedGuid))
+        {
+            <div class="bg-purple-50 border-l-4 border-purple-400 text-purple-800 p-4 rounded-md mb-6" role="alert">
+                <p class="font-bold">GUID Received from App1 (Initial Handshake):</p>
+                <p class="break-all text-sm mt-1">
+                    <code class="bg-gray-200 p-1 rounded-sm">
+                        @Model.ReceivedGuid
+                    </code>
+                </p>
+                <p class="text-sm mt-2">
+                    This GUID initiated the communication, and App2's backend uses it to contact App1's backend.
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="bg-red-50 border-l-4 border-red-400 text-red-800 p-4 rounded-md mb-6" role="alert">
+                <p class="font-bold">No GUID Received!</p>
+                <p class="text-sm mt-1">
+                    Please ensure you are accessing App2 by logging into App1 (e.g., <a href="http://localhost:7196" class="text-red-700 underline">http://localhost:7196</a>, use 'user'/'password123'), where 7196 is App1's example port.
+                </p>
+            </div>
+        }
+
+        <div class="mb-8">
+            <form method="post" id="performActionForm">
+                <input type="hidden" name="handler" value="PerformAction" />
+                <button
+                    type="submit"
+                    class="px-8 py-4 rounded-full text-white font-bold text-xl transition-all duration-300 ease-in-out
+                        bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                >
+                    Perform GIS Action (Call App1)
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 min-h-[150px] flex flex-col items-center justify-center">
+            @if (Model.IsLoading)
+            {
+                <div class="flex flex-col items-center space-y-3">
+                    <div class="w-8 h-8 border-4 border-indigo-300 border-t-indigo-500 rounded-full animate-spin"></div>
+                    <span class="text-indigo-600 text-lg font-semibold">Loading content...</span>
+                    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+                    {
+                        <p class="text-gray-500 text-md italic">@Model.StatusMessage</p>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="w-full">
+                    <p class="text-gray-800 text-lg mb-2">
+                        <span class="font-semibold">App2 ➔ App1 Actual Calls: </span>
+                        <span class="text-red-500 font-bold text-xl">@Model.App2ToApp1CallCount</span>
+                    </p>
+                    @if (!string.IsNullOrEmpty(Model.ReceivedApp1SessionId))
+                    {
+                        <p class="text-gray-800 text-lg mb-3">
+                            <span class="font-semibold">Validated User: </span>
+                            <span class="text-purple-600 font-bold">@Model.App1ValidationUserName</span>
+                            <br/>
+                            <span class="font-semibold">App1 Session ID: </span>
+                            <span class="text-green-600 font-bold">@Model.ReceivedApp1SessionId</span>
+                        </p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+                    {
+                        <p class="text-gray-500 text-md italic mb-3">@Model.StatusMessage</p>
+                    }
+                    <em class="block text-base text-gray-600">@Model.Data</em>
+                </div>
+            }
+        </div>
+
+        <p class="mt-8 text-sm text-gray-500">
+            This simulation highlights the overhead of continuous validation with App1.
+            In a real scenario, this would lead to performance issues and increased load on App1.
+        </p>
+    </div>
+</div>
